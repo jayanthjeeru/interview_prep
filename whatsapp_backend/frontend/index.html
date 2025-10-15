@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Live Chat App</title>
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+</head>
+<body>
+    <h2>Chat Application</h2>
+
+    <input type="text" id="sender" placeholder="Sender username" onblur="onUserChange()" />
+    <input type="text" id="receiver" placeholder="Receiver username" onblur="onUserChange()" />
+    <br/><br/>
+    <input type="text" id="messageInput" placeholder="Enter message" />
+    <button onclick="sendMessage()">Send</button>
+
+    <h3>Messages:</h3>
+    <ul id="messages"></ul>
+
+    <script>
+        let stompClient;
+        let currentSubscription;
+        let lastSender = "";
+        let lastReceiver = "";
+
+        function connect() {
+            const socket = new SockJS('http://localhost:8080/ws');
+            stompClient = Stomp.over(socket);
+            stompClient.connect({}, () => {
+                console.log("WebSocket Connected");
+                attemptChatSetup();
+            });
+        }
+
+        function attemptChatSetup() {
+            const sender = document.getElementById("sender").value.trim();
+            const receiver = document.getElementById("receiver").value.trim();
+
+            // Prevent redundant subscriptions
+            if (!sender || !receiver || (sender === lastSender && receiver === lastReceiver)) {
+                return;
+            }
+
+            // Unsubscribe from old
+            if (currentSubscription) {
+                currentSubscription.unsubscribe();
+            }
+
+            // Clear chat and fetch history
+            document.getElementById("messages").innerHTML = "";
+            fetch(`http://localhost:8080/api/chat/history?user1=${sender}&user2=${receiver}`)
+                .then(response => response.json())
+                .then(data => {
+                    data.forEach(msg => appendMessage(msg.sender + ": " + msg.content));
+                });
+
+            // Subscribe to sender's incoming messages
+            currentSubscription = stompClient.subscribe('/topic/messages/' + sender, message => {
+                const msg = JSON.parse(message.body);
+                if (msg.sender === receiver || msg.receiver === receiver) {
+                    appendMessage(msg.sender + ": " + msg.content);
+                }
+            });
+
+            lastSender = sender;
+            lastReceiver = receiver;
+        }
+
+        function onUserChange() {
+            attemptChatSetup();
+        }
+
+        function sendMessage() {
+            const sender = document.getElementById("sender").value.trim();
+            const receiver = document.getElementById("receiver").value.trim();
+            const content = document.getElementById("messageInput").value.trim();
+
+            if (!stompClient || !stompClient.connected) {
+                alert("WebSocket not connected.");
+                return;
+            }
+
+            if (!sender || !receiver || !content) {
+                alert("Please fill all fields.");
+                return;
+            }
+
+            stompClient.send("/app/sendMessage", {}, JSON.stringify({
+                sender: sender,
+                receiver: receiver,
+                content: content
+            }));
+
+            document.getElementById("messageInput").value = "";
+        }
+
+        function appendMessage(text) {
+            const li = document.createElement("li");
+            li.textContent = text;
+            document.getElementById("messages").appendChild(li);
+        }
+
+        window.onload = connect;
+    </script>
+</body>
+</html>

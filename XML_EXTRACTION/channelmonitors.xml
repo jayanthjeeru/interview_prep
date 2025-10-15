@@ -1,0 +1,3 @@
+<channel-monitors xmlns="http://openconfig.net/yang/channel-monitor">
+			<channel-monitor/>
+		</channel-monitors>

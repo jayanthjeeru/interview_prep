@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>WebSocket Chat</title>
+  <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; }
+    input, button { padding: 8px; margin: 5px; }
+    #messages { list-style-type: none; padding: 0; }
+    li { margin-bottom: 8px; }
+  </style>
+</head>
+<body>
+
+  <h2>WebSocket Chat</h2>
+
+  <input type="text" id="sender" placeholder="Sender username" onblur="subscribeToMessages()" />
+  <input type="text" id="receiver" placeholder="Receiver username" onblur="subscribeToMessages()" />
+  <br><br>
+
+  <input type="text" id="messageInput" placeholder="Enter message" />
+  <button onclick="sendMessage()">Send</button>
+
+  <h3>Messages:</h3>
+  <ul id="messages"></ul>
+
+  <script>
+    let stompClient = null;
+    let currentSubscription = null;
+
+    function connect() {
+      const socket = new SockJS('http://localhost:8080/ws');
+      stompClient = Stomp.over(socket);
+      stompClient.connect({}, () => {
+        console.log("Connected to WebSocket");
+        subscribeToMessages();
+      });
+    }
+
+    function subscribeToMessages() {
+      const sender = document.getElementById("sender").value.trim();
+      const receiver = document.getElementById("receiver").value.trim();
+
+      if (!sender || !receiver || !stompClient || !stompClient.connected) return;
+
+      // Unsubscribe old subscription
+      if (currentSubscription) {
+        currentSubscription.unsubscribe();
+      }
+
+      // Fetch chat history
+      fetch(`http://localhost:8080/api/chat/history?user1=${sender}&user2=${receiver}`)
+        .then(res => res.json())
+        .then(data => {
+          document.getElementById("messages").innerHTML = "";
+          data.forEach(msg => appendMessage(`${msg.sender}: ${msg.content}`));
+        });
+
+      // Subscribe to new messages
+      currentSubscription = stompClient.subscribe(`/topic/messages/${sender}`, (message) => {
+        const msg = JSON.parse(message.body);
+        if (msg.receiver === receiver || msg.sender === receiver) {
+          appendMessage(`${msg.sender}: ${msg.content}`);
+        }
+      });
+    }
+
+    function sendMessage() {
+      const sender = document.getElementById("sender").value.trim();
+      const receiver = document.getElementById("receiver").value.trim();
+      const content = document.getElementById("messageInput").value.trim();
+
+      if (!sender || !receiver || !content) {
+        alert("Please fill in sender, receiver, and message.");
+        return;
+      }
+
+      if (!stompClient || !stompClient.connected) {
+        alert("WebSocket is not connected.");
+        return;
+      }
+
+      stompClient.send("/app/sendMessage", {}, JSON.stringify({
+        sender,
+        receiver,
+        content
+      }));
+
+      document.getElementById("messageInput").value = '';
+    }
+
+    function appendMessage(text) {
+      const li = document.createElement("li");
+      li.textContent = text;
+      document.getElementById("messages").appendChild(li);
+    }
+
+    window.onload = connect;
+  </script>
+
+</body>
+</html>
