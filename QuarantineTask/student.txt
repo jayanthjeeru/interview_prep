@@ -1,0 +1,17 @@
+<class>  
+	<students>
+		<student rollno = " 20211A05H0">  
+		<firstname>MdAltaf</firstname>  
+		<lastname>zameer</lastname>  
+		<nickname>Zameer</nickname>  
+		<marks> 965</marks>
+		</student> 
+		<student rollno = " 20211A05H1">  
+		<firstname>jay</firstname>  
+		<lastname>reddy</lastname>  
+		<nickname>jr</nickname>  
+		<marks>800</marks>
+		<pu>hp</pu>
+		</student>  
+	</students>
+</class>  

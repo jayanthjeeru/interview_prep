@@ -1,0 +1,17 @@
+resource,AID,resource-type,wsnoc mapping
+/ne/facilities/odu[name=1-5-L2-1-ODUCni-ODUflexi-1],1-5-L2-1-ODUflexi-1,ioa-common:ODUflexi,ODUCODUFlexi-$1-$2
+/ne/facilities/odu[name=1-5-L2-1-ODUCni-ODU4i-321],1-5-L2-1-ODU4i-1,ioa-common:ODU4i,ODUCODU4i-$1-$2
+/ne/facilities/odu[name=1-6-L1-1-ODUCni-ODU4-1],1-6-L1-1-ODU4-1,ioa-common:ODU4,ODUCODU4-$1-$2
+/ne/facilities/ethernet[name=1-4-T2.1],1-4-T2.1,gx:ETH100G,PORT-$1
+/ne/facilities/comm-channel[name=1-4-L1-1],1-4-L1-1,ioa-common:comm-channel,GCC-$1
+/ne/facilities/otu[name=1-5-L2-1-OTUCni],1-5-L2-1,ioa-common:OTUCni,GCC-$1
+/ne/facilities/optical-carrier[name=1-5-L2-1],1-5-L2-1,ioa-common:optical-carrier,GCC-$1
+/ne/equipment/card[name=1-5]/port[name=T5],1-5-5,ioa-common:tom,PORT-$1
+/ne/equipment/card[name=1-FANCTRL-1],1-FANCTRL-1,gx:FAN-CTRL,CARD-$1
+/ne/equipment/card[name=1-PEM-4],1-PEM-4,gx:PEM,CARD-$1
+/ne/equipment/card[name=1-FAN-7],1-FAN-7,gx:XMM4-FAN,CARD-$1
+/ne/facilities/line-ptp[name=1-4-L1],1-4-L1,ioa-common:line-ptp,PORT-$1
+/ne/facilities/super-channel-group[name=1-5-L2],1-5-L2,ioa-common:super-channel-group,PORT-$1
+/ne/facilities/ethernet[name=1-5-T5],1-5-T5,gx:ETH100G,PORT-$1
+/ne/equipment/card[name=1-5],1-5,gx:CHM6,CARD-$1
+/ne/equipment/chassis[name=1],1,gx:G42,SHELF-$1

@@ -1,0 +1,3 @@
+com\wipro\kafkaproducer\JsonSerializer.class
+com\wipro\kafkaproducer\Producer.class
+com\wipro\kafkaproducer\StudentModel.class
